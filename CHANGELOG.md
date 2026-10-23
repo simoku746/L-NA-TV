@@ -3,6 +3,7 @@
 ## v1.0.0
 
 - Lina TV ilk sürüm: leylak tema, yeni logo ve ad, kendi güncelleme kanalı.
+- Film ve dizi bilgileri için kendi TMDB anahtarı.
 
 > Release notes: two parts per version — New features (by name) and Fixes. This file feeds the GitHub release body and the in-app update dialog.
 >
