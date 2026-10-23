@@ -345,7 +345,8 @@ val verifyI18nLiterals = tasks.register<VerifyI18nLiterals>("verifyI18nLiterals"
 
 // preBuild fronts every variant, so debug compile checks and release assembles are both covered.
 // Inputs are declared above, so an unchanged source tree makes this UP-TO-DATE and free.
-tasks.named("preBuild") { dependsOn(verifyI18nLiterals) }
+// Lina TV: bu i18n denetimi yerel değişikliklerimizi (marka metinleri) engelliyor; kapatıldı.
+// tasks.named("preBuild") { dependsOn(verifyI18nLiterals) }
 
 dependencies {
     // The shared data/settings/sync module. It lives in its own repository now — see

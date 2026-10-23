@@ -90,6 +90,7 @@ jobs:
             echo "Release signing configured."
           else
             echo "No KEYSTORE_BASE64 secret set — building a debug-signed APK."
+            echo "SECRET DURUMU: KEYSTORE_BASE64 yok" > "$RUNNER_TEMP/secrets.txt"
           fi
 
       # Derives this release's edge key for the default metadata/subtitle service. Falls back to the
@@ -155,6 +156,7 @@ jobs:
         if: failure()
         run: |
           mkdir -p /tmp/cilog && cp "$RUNNER_TEMP/build.log" /tmp/cilog/build.log 2>/dev/null || echo "log yok" > /tmp/cilog/build.log
+          cat "$RUNNER_TEMP/secrets.txt" >> /tmp/cilog/build.log 2>/dev/null || true
           cd /tmp/cilog && git init -q && git checkout -q -b ci-logs
           git config user.name ci && git config user.email ci@users.noreply.github.com
           tail -400 build.log > build-tail.log
