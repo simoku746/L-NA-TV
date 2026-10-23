@@ -123,8 +123,9 @@ jobs:
           VERSION_NAME: ${{ steps.ver.outputs.name }}
           VERSION_CODE: ${{ steps.ver.outputs.code }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          # Lina TV: takma ad sabit, anahtar şifresi depo şifresiyle aynı (PKCS12)
+          KEY_ALIAS: linatv
+          KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           # OWNTV_EDGE_KEY is exported into $GITHUB_ENV by the step above; app/build.gradle.kts reads
           # it as the env var it always did.
