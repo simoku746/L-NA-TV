@@ -372,7 +372,17 @@ class MovieViewModel(
                 .collectLatest { probe ->
                     val wanted = probe.filterNot { it.id in _cachedPosters.value }
                     if (wanted.isEmpty()) return@collectLatest
-                    val found = runCatching { metadata.cachedMoviePosters(wanted) }.getOrDefault(emptyMap())
+                    val cached = runCatching { metadata.cachedMoviePosters(wanted) }.getOrDefault(emptyMap())
+                    // Lina TV: tiles with no (or a broken) provider poster ask TMDB directly, a few at a
+                    // time, instead of waiting for each title to be focused once. Skipped in provider-only mode.
+                    val fetched = mutableMapOf<Long, String>()
+                    if (metadataMode.value != tv.own.owntv.core.metadata.MetadataMode.PROVIDER) {
+                        for (item in wanted.filterNot { it.id in cached }.take(12)) {
+                            val path = runCatching { metadata.resolveMovie(item)?.posterPath }.getOrNull()
+                            tv.own.owntv.core.metadata.MetadataImages.poster(path)?.let { fetched[item.id] = it }
+                        }
+                    }
+                    val found = cached + fetched
                     if (found.isEmpty()) return@collectLatest
                     // Bounded: a session spent browsing a 170k catalog would otherwise grow this forever.
                     val base = if (_cachedPosters.value.size > 500) emptyMap() else _cachedPosters.value

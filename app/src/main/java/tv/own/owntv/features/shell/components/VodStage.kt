@@ -451,7 +451,10 @@ internal fun VodListRow(
 internal fun VodPosterArt(url: String?, placeholder: OwnTVIcon) {
     Box(Modifier.fillMaxSize().background(StageColors.Ink.copy(alpha = 0.06f)), contentAlignment = Alignment.Center) {
         if (!url.isNullOrBlank()) {
-            AsyncImage(model = url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            AsyncImage(
+                model = url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(),
+                onError = { tv.own.owntv.ui.components.LinaPosterFailures.mark(url) },
+            )
         } else {
             OwnTVIcon(placeholder, StageColors.Dim, Modifier.size(48.mpx))
         }

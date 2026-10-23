@@ -1,5 +1,9 @@
 # OwnTV — Changelog
 
+## v1.0.1
+
+- **Film ve dizi afişleri: eksik ya da bozuk afişler TMDB'den tamamlanıyor**
+
 ## v1.0.0
 
 - Lina TV ilk sürüm: leylak tema, yeni logo ve ad, kendi güncelleme kanalı.

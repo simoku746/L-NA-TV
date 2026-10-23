@@ -293,7 +293,7 @@ fun MoviesScreen(
             else effectiveListState.layoutInfo.visibleItemsInfo.map { it.index }
             info.filter { it < movies.itemCount }
                 .mapNotNull { movies.peek(it) }
-                .filter { it.posterUrl.isNullOrBlank() }
+                .filter { tv.own.owntv.ui.components.LinaPosterFailures.usable(it.posterUrl) == null }
         }.distinctUntilChanged().collect { vm.onPosterlessVisible(it) }
     }
     // Returning from the player: scroll to and focus the movie you just played (waits for the grid to load).
@@ -480,7 +480,7 @@ fun MoviesScreen(
         vm.onMovieFocused(movie)
         if (rememberMovies) perCategoryMovieIds[selectedKey] = movie.id
     }
-    val posterOf: (MovieEntity) -> String? = { it.posterUrl?.takeIf { u -> u.isNotBlank() } ?: cachedPosters[it.id] }
+    val posterOf: (MovieEntity) -> String? = { tv.own.owntv.ui.components.LinaPosterFailures.usable(it.posterUrl) ?: cachedPosters[it.id] }
     val playHint = stringResource(R.string.common_ok) to stringResource(R.string.content_play)
     val optionsHint = stringResource(R.string.content_key_hold_ok) to stringResource(R.string.content_key_options)
 

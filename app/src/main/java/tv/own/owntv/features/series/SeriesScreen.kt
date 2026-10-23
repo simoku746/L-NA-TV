@@ -347,7 +347,7 @@ private fun SeriesGrid(
             else effectiveListState.layoutInfo.visibleItemsInfo.map { it.index }
             indices.filter { it < series.itemCount }
                 .mapNotNull { series.peek(it) }
-                .filter { it.posterUrl.isNullOrBlank() }
+                .filter { tv.own.owntv.ui.components.LinaPosterFailures.usable(it.posterUrl) == null }
         }.distinctUntilChanged().collect { vm.onPosterlessVisible(it) }
     }
 
@@ -541,7 +541,7 @@ private fun SeriesGrid(
         vm.onSeriesFocused(show)
         if (rememberSeries) perCategorySeriesIds[selectedKey] = show.id
     }
-    val posterOf: (tv.own.owntv.core.database.entity.SeriesEntity) -> String? = { it.posterUrl?.takeIf { u -> u.isNotBlank() } ?: cachedPosters[it.id] }
+    val posterOf: (tv.own.owntv.core.database.entity.SeriesEntity) -> String? = { tv.own.owntv.ui.components.LinaPosterFailures.usable(it.posterUrl) ?: cachedPosters[it.id] }
     val playHint = stringResource(R.string.common_ok) to stringResource(R.string.content_episodes)
     val optionsHint = stringResource(R.string.content_key_hold_ok) to stringResource(R.string.content_key_options)
 
