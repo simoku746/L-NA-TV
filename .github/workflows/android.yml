@@ -9,6 +9,7 @@ name: Lina TV derleme
 on:
   push:
     branches: [ main ]
+    paths-ignore: [ "tv-launcher/**", ".github/workflows/ana-ekran.yml" ]
     tags: [ "v*" ]
   pull_request:
     branches: [ main ]
