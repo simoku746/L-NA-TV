@@ -143,6 +143,9 @@ jobs:
             echo "ARM_SRC=$ARM_SRC" >> "$GITHUB_ENV"
             echo "X86_SRC=$X86_SRC" >> "$GITHUB_ENV"
           else
+            echo "::error::KEYSTORE_BASE64 secret bulunamadi - imzasiz surum yayinlanmayacak."
+            echo "SECRET DURUMU: KEYSTORE_BASE64 yok" > "$RUNNER_TEMP/build.log"
+            exit 1
             echo "Building debug APK"
             ./gradlew :app:assembleStandardDebug 2>&1 | tee "$RUNNER_TEMP/build.log"; test ${PIPESTATUS[0]} -eq 0
             # Debug also builds both flavors; standard (arm) is the one most likely to be tested on a
