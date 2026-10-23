@@ -90,6 +90,10 @@ android {
             ?: ""
         buildConfigField("String", "TMDB_EDGE_KEY", "\"${edgeKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
 
+        // Lina TV: varsayılan TMDB anahtarı, yalnızca GitHub secret'ından (depoda asla yazılı değil)
+        val linaTmdb = System.getenv("TMDB_API_KEY") ?: ""
+        buildConfigField("String", "LINA_TMDB_KEY", "\"${linaTmdb.replace("\"", "")}\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

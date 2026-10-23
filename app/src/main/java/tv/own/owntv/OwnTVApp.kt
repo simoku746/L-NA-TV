@@ -17,6 +17,7 @@ import okio.Path.Companion.toOkioPath
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext
+import kotlinx.coroutines.flow.first
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import tv.own.owntv.core.util.Perf
@@ -130,6 +131,14 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
         )
         // The Stage UI's own defaults, once per install: Docked · Compact rail, glass
         // on at 50%, the Stage background; Movies & Series keep an update's layout.
+        // Lina TV: derlemeye gömülü TMDB anahtarı (GitHub secret TMDB_API_KEY). Kullanıcı kendisi bir anahtar
+        // girmediyse varsayılan olarak bu kullanılır.
+        if (BuildConfig.LINA_TMDB_KEY.isNotBlank()) appScope.launch {
+            runCatching {
+                val s = GlobalContext.get().get<tv.own.owntv.core.settings.SettingsRepository>()
+                if (s.tmdbApiKey.first().isBlank()) s.setTmdbApiKey(BuildConfig.LINA_TMDB_KEY)
+            }
+        }
         appScope.launch {
             runCatching {
                 GlobalContext.get().get<tv.own.owntv.core.settings.SettingsRepository>().applyStageDefaults()
