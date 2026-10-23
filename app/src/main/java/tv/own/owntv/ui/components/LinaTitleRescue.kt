@@ -15,18 +15,38 @@ object LinaTitleRescue {
     /** True the first time for a title this session; the rescue runs once per title per session. */
     fun firstTry(key: String): Boolean = tried.size < 5000 && tried.add(key)
 
-    fun candidates(rawName: String): List<String> {
-        val base = tv.own.owntv.core.metadata.TitleNormalizer.normalize(rawName).query
-        val clean = base.replace(JUNK, " ").replace(SPACES, " ").trim(' ', '-', '–', ':', '.')
-        val out = LinkedHashSet<String>()
-        val parts = clean.split(Regex("""\s+[-–]\s+""")).map { it.trim() }.filter { it.length >= 2 }
-        if (parts.size >= 2) {
-            out += parts.last()   // usually the original (English) title
-            out += parts.first()  // the Turkish title
+    private val TITLE_BEFORE_YEAR = Regex("""^(.*?)\s*[\[(]\s*((?:19|20)\d{2})\s*[\])]""")
+
+    /**
+     * Search names with the year each should be searched under. The year in the first brackets wins
+     * ("The Fix (2026) TRSub 2027'de Sinemalarda" is a 2026 film, not 2027).
+     */
+    fun candidates(rawName: String): List<Pair<String, Int>> {
+        val norm = tv.own.owntv.core.metadata.TitleNormalizer.normalize(rawName)
+        val base = norm.query
+        val out = LinkedHashMap<String, Int>()
+        fun addFrom(text: String, year: Int?) {
+            if (year == null) return
+            val clean = text.replace(JUNK, " ").replace(SPACES, " ").trim(' ', '-', '–', ':', '.', '|')
+            val parts = clean.split(Regex("""\s+[-–]\s+""")).map { it.trim() }.filter { it.length >= 2 }
+            if (parts.size >= 2) {
+                out.putIfAbsent(parts.last(), year)   // usually the original (English) title
+                out.putIfAbsent(parts.first(), year)  // the Turkish title
+            }
+            if (clean.length >= 2) out.putIfAbsent(clean, year)
+            // "Fall 2: Ölümcül Tırmanış" → also the part before the colon.
+            clean.substringBefore(':').trim().takeIf { ':' in clean && it.length >= 2 }?.let { out.putIfAbsent(it, year) }
         }
-        if (clean != base && clean.length >= 2) out += clean
-        // "Fall 2: Ölümcül Tırmanış" → also try the part before the colon.
-        clean.substringBefore(':').trim().takeIf { ':' in clean && it.length >= 2 }?.let { out += it }
-        return out.filter { !it.equals(base, ignoreCase = true) }.take(3)
+        TITLE_BEFORE_YEAR.find(rawName)?.let { m ->
+            val head = tv.own.owntv.core.metadata.TitleNormalizer.normalize(m.groupValues[1]).query
+            addFrom(head, m.groupValues[2].toIntOrNull())
+        }
+        addFrom(base, norm.year)
+        val firstYear = TITLE_BEFORE_YEAR.find(rawName)?.groupValues?.get(2)?.toIntOrNull()
+        return out.entries
+            .filterNot { it.key.equals(base, ignoreCase = true) && it.value == norm.year }
+            .map { it.key to it.value }
+            .take(4)
+            .ifEmpty { if (firstYear != null && firstYear != norm.year && base.isNotBlank()) listOf(base to firstYear) else emptyList() }
     }
 }

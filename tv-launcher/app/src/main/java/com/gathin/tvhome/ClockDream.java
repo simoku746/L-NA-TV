@@ -31,6 +31,7 @@ public class ClockDream extends DreamService {
     private final Runnable tick = new Runnable() {
         @Override
         public void run() {
+            updateGreeting();
             moveClock();
             shiftGlow();
             handler.postDelayed(this, MOVE_MS);
@@ -46,6 +47,7 @@ public class ClockDream extends DreamService {
         setContentView(R.layout.dream_clock);
 
         content = findViewById(R.id.dreamContent);
+        updateGreeting();
         View ambient = findViewById(R.id.dreamAmbient);
         glow = new GradientDrawable();
         glow.setGradientType(GradientDrawable.RADIAL_GRADIENT);
@@ -77,6 +79,21 @@ public class ClockDream extends DreamService {
     public void onDetachedFromWindow() {
         handler.removeCallbacks(tick);
         super.onDetachedFromWindow();
+    }
+
+    /** Lina TV: the home screen's greeting ("İyi Akşamlar, Karatepe") under the date. */
+    private void updateGreeting() {
+        android.widget.TextView g = findViewById(R.id.dreamGreeting);
+        if (g == null) return;
+        int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
+        int res;
+        if (hour < 5) res = R.string.good_night;
+        else if (hour < 12) res = R.string.good_morning;
+        else if (hour < 17) res = R.string.good_afternoon;
+        else if (hour < 22) res = R.string.good_evening;
+        else res = R.string.good_night;
+        String who = Sources.linaConfig(this).optString("lina_name", "Karatepe");
+        g.setText(who.isEmpty() ? getString(res) : getString(res) + ", " + who);
     }
 
     private void moveClock() {

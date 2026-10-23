@@ -399,11 +399,10 @@ class SeriesViewModel(
                             var path = runCatching { metadata.resolveSeries(item)?.posterPath }.getOrNull()
                             // No match under the provider's name: try the cleaned-up alternatives
                             // (Lina TV). A working one is kept as this title's TMDB name override.
-                            val year = tv.own.owntv.core.metadata.TitleNormalizer.normalize(item.name).year
-                            if (path == null && year != null && tv.own.owntv.ui.components.LinaTitleRescue.firstTry(item.name) && runCatching { metadata.seriesOverride(item) }.getOrNull() == null) {
+                            if (path == null && tv.own.owntv.ui.components.LinaTitleRescue.firstTry(item.name) && runCatching { metadata.seriesOverride(item) }.getOrNull() == null) {
                                 path = kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
                                     var p: String? = null
-                                    for (alt in tv.own.owntv.ui.components.LinaTitleRescue.candidates(item.name)) {
+                                    for ((alt, year) in tv.own.owntv.ui.components.LinaTitleRescue.candidates(item.name)) {
                                         runCatching { metadata.setSeriesOverride(item, alt, year) }
                                         p = runCatching { metadata.resolveSeries(item)?.posterPath }.getOrNull()
                                         if (p != null) break

@@ -1,5 +1,9 @@
 # OwnTV — Changelog
 
+## v1.0.3
+
+- **Afiş kurtarma: yıl ilk parantezden alınıyor, ad parantez öncesinden aranıyor**
+
 ## v1.0.2
 
 - **Afiş bulunamayan "Türkçe - İngilizce (yıl) TRSUB" adlı filmler için TMDB'de alternatif adlarla arama**

@@ -61,5 +61,15 @@
             android:fontVariationSettings="'wght' 400"
             android:letterSpacing="0.14"
             android:textAllCaps="true" />
+        <TextView
+            android:id="@+id/dreamGreeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="14dp"
+            android:textColor="#CCFFFFFF"
+            android:textSize="30sp"
+            android:fontFamily="@font/outfit"
+            android:fontVariationSettings="'wght' 300" />
     </LinearLayout>
 </FrameLayout>
