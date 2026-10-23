@@ -131,25 +131,35 @@ jobs:
           chmod +x ./gradlew
           if [ -n "$KEYSTORE_FILE" ]; then
             echo "Building signed release APKs (both ABI flavors)"
-            ./gradlew assembleRelease --stacktrace
+            ./gradlew :app:assembleStandardRelease --stacktrace 2>&1 | tee "$RUNNER_TEMP/build.log"; test ${PIPESTATUS[0]} -eq 0
             # Product flavors split the output by flavor subfolder:
             #   standard/release  -> arm (arm64-v8a + armeabi-v7a) — the main download
             #   x86_64/release    -> x86_64 — emulator / rare x86 box
             ARM_SRC=$(ls app/build/outputs/apk/standard/release/*.apk | head -n1)
-            X86_SRC=$(ls app/build/outputs/apk/x86_64/release/*.apk | head -n1)
+            X86_SRC=""
             echo "Built arm:    $ARM_SRC"
             echo "Built x86_64: $X86_SRC"
             echo "ARM_SRC=$ARM_SRC" >> "$GITHUB_ENV"
             echo "X86_SRC=$X86_SRC" >> "$GITHUB_ENV"
           else
             echo "Building debug APK"
-            ./gradlew assembleDebug
+            ./gradlew :app:assembleStandardDebug 2>&1 | tee "$RUNNER_TEMP/build.log"; test ${PIPESTATUS[0]} -eq 0
             # Debug also builds both flavors; standard (arm) is the one most likely to be tested on a
             # real device. Surface it as the primary artifact; x86_64 debug is still in its folder.
             SRC=$(ls app/build/outputs/apk/standard/debug/*.apk | head -n1)
             echo "Built: $SRC"
             echo "ARM_SRC=$SRC" >> "$GITHUB_ENV"
           fi
+
+      - name: Hata kaydını ci-logs dalına yaz
+        if: failure()
+        run: |
+          mkdir -p /tmp/cilog && cp "$RUNNER_TEMP/build.log" /tmp/cilog/build.log 2>/dev/null || echo "log yok" > /tmp/cilog/build.log
+          cd /tmp/cilog && git init -q && git checkout -q -b ci-logs
+          git config user.name ci && git config user.email ci@users.noreply.github.com
+          tail -400 build.log > build-tail.log
+          git add build-tail.log && git commit -q -m "build log ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" ci-logs
 
       - name: Name the APK (OwnTV-v<version>)
         run: |
