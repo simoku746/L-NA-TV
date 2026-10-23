@@ -396,8 +396,23 @@ class SeriesViewModel(
                     val fetched = mutableMapOf<Long, String>()
                     if (metadataMode.value != tv.own.owntv.core.metadata.MetadataMode.PROVIDER) {
                         for (item in wanted.filterNot { it.id in cached }.take(12)) {
-                            val path = runCatching { metadata.resolveSeries(item)?.posterPath }.getOrNull()
-                            tv.own.owntv.core.metadata.MetadataImages.poster(path)?.let { fetched[item.id] = it }
+                            var path = runCatching { metadata.resolveSeries(item)?.posterPath }.getOrNull()
+                            // No match under the provider's name: try the cleaned-up alternatives
+                            // (Lina TV). A working one is kept as this title's TMDB name override.
+                            val year = tv.own.owntv.core.metadata.TitleNormalizer.normalize(item.name).year
+                            if (path == null && year != null && tv.own.owntv.ui.components.LinaTitleRescue.firstTry(item.name) && runCatching { metadata.seriesOverride(item) }.getOrNull() == null) {
+                                path = kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                                    var p: String? = null
+                                    for (alt in tv.own.owntv.ui.components.LinaTitleRescue.candidates(item.name)) {
+                                        runCatching { metadata.setSeriesOverride(item, alt, year) }
+                                        p = runCatching { metadata.resolveSeries(item)?.posterPath }.getOrNull()
+                                        if (p != null) break
+                                        runCatching { metadata.clearSeriesOverride(item) }
+                                    }
+                                    p
+                                }
+                            }
+                            tv.own.owntv.core.metadata.MetadataImages.poster(path)?.let { fetched[item.id] = it; _cachedPosters.value = _cachedPosters.value + (item.id to it) }
                         }
                     }
                     val found = cached + fetched

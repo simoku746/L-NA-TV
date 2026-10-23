@@ -1,5 +1,9 @@
 # OwnTV — Changelog
 
+## v1.0.2
+
+- **Afiş bulunamayan "Türkçe - İngilizce (yıl) TRSUB" adlı filmler için TMDB'de alternatif adlarla arama**
+
 ## v1.0.1
 
 - **Film ve dizi afişleri: eksik ya da bozuk afişler TMDB'den tamamlanıyor**
